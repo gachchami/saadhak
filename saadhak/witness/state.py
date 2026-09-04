@@ -19,23 +19,61 @@ from saadhak.witness.positions import open_structures
 STATE = Path("state/latest.json")
 
 
+def _equity_series(since_iso: str | None) -> list[dict]:
+    """Equity through the agent's own lifetime, for the dashboard's curve.
+
+    The paper account was funded before the agent existed, so the broker's
+    history opens with a balance that has nothing to do with any decision made
+    here. Anchoring on the first journal entry keeps the curve honest: it starts
+    where the agent starts.
+    """
+    try:
+        h = acct.portfolio_history(period="1M", timeframe="1D")
+        intraday = acct.portfolio_history(period="1W", timeframe="15Min")
+    except Exception:
+        return []
+    points: dict[str, float] = {}
+    for src in (h, intraday):
+        for t, e in zip(src.get("timestamp") or [], src.get("equity") or [], strict=False):
+            if not e:
+                continue
+            stamp = datetime.fromtimestamp(t, UTC).isoformat(timespec="seconds")
+            if since_iso and stamp < since_iso:
+                continue
+            points[stamp] = round(float(e), 2)
+    return [{"t": t, "e": points[t]} for t in sorted(points)]
+
+
 def build() -> dict:
     a = acct.get_account()
     clock = acct.get_clock()
     cal = calibration_now(resolve=False)
     structures = open_structures()
 
-    recent = journal.read()[-400:]
-    gates = [r for r in recent if r["type"] == "gate_result"]
+    everything = journal.read_all()
+    started = everything[0]["ts"][:10] if everything else None
+    recent = everything[-400:]
+    start_equity = next(
+        (r["data"]["sizing"]["equity"] for r in everything
+         if r["type"] == "gate_result"
+         and isinstance(r["data"].get("sizing"), dict)
+         and r["data"]["sizing"].get("equity")), None)
+    gates = [r for r in everything if r["type"] == "gate_result"]
     refusals = [g for g in gates if g["data"].get("decision") == "refuse"]
-    theses = [r for r in recent if r["type"] == "thesis"]
+    theses = [r for r in everything if r["type"] == "thesis"]
     recs = [r for r in recent if r["type"] == "reconciliation"]
 
-    reasons: dict[str, int] = {}
+    reasons: dict[str, int] = {}          # counted once, by what stopped the trade
+    reasons_all: dict[str, int] = {}      # every check a trade failed
     for g in refusals:
-        for x in g["data"].get("gates", []):
-            if not x["ok"]:
-                reasons[f"{x['n']:02d} {x['name']}"] = reasons.get(f"{x['n']:02d} {x['name']}", 0) + 1
+        failed = [x for x in (g["data"].get("gates") or []) if not x.get("ok", True)]
+        for x in failed:
+            k = f"{x['n']:02d} {x['name']}"
+            reasons_all[k] = reasons_all.get(k, 0) + 1
+        if failed:
+            first = min(failed, key=lambda x: x["n"])
+            k = f"{first['n']:02d} {first['name']}"
+            reasons[k] = reasons.get(k, 0) + 1
 
     return {
         "as_of": datetime.now(UTC).isoformat(timespec="seconds"),
@@ -44,7 +82,8 @@ def build() -> dict:
             "id": a.id, "number": a.account_number,
             "equity": a.equity, "cash": a.cash,
             "daily_pl": a.daily_pl, "daily_pl_pct": a.daily_pl_pct,
-            "since_start_pct": a.equity / 100_000 - 1,
+            "start_equity": start_equity,
+            "since_start_pct": (a.equity / start_equity - 1) if start_equity else None,
         },
         "calibration": {
             "brier": cal.brier, "n": cal.n, "mean_p": cal.mean_p,
@@ -62,6 +101,7 @@ def build() -> dict:
         "decisions": {
             "total": len(gates), "accepted": len(gates) - len(refusals),
             "refused": len(refusals), "refusal_reasons": reasons,
+            "refusal_reasons_all": reasons_all,
         },
         "practitioner": {
             "consulted": sum(1 for t in theses if t["data"].get("consulted")),
@@ -71,7 +111,9 @@ def build() -> dict:
         "reconciliation": (recs[-1]["data"] if recs else None),
         "limiters": __import__("saadhak.practitioner.ratelimit",
                                fromlist=["all_status"]).all_status(),
-        "journal_head": journal.head(),
+        "equity_series": _equity_series(started),
+        "journal_head": (everything[-1].get("hash") if everything
+                         else journal.GENESIS),
     }
 
 

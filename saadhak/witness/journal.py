@@ -51,6 +51,14 @@ def read(day: str | None = None) -> list[dict]:
     return [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
 
 
+def read_all() -> list[dict]:
+    """Every day's records, oldest first. One day per file, named by date."""
+    out: list[dict] = []
+    for p in sorted(JOURNAL_DIR.glob("*.jsonl")):
+        out += [json.loads(l) for l in p.read_text().splitlines() if l.strip()]
+    return out
+
+
 def verify(day: str | None = None) -> tuple[bool, str]:
     prev = GENESIS
     for rec in read(day):

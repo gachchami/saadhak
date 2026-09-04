@@ -1,4 +1,4 @@
-"""The seventeen gates. Every order passes all of them or is refused with a readable reason.
+"""The nineteen gates. Every order passes all of them or is refused with a readable reason.
 
 Gates are pure functions of a GateContext so they can be unit-tested without a broker.
 """
