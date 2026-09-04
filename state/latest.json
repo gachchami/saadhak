@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-04T14:40:59+00:00",
+  "as_of": "2026-09-04T14:43:45+00:00",
   "market_open": true,
   "account": {
     "id": "8e02ddcf-e8fd-4b5f-9d67-9c619b0334c9",
@@ -72,7 +72,15 @@
       "allowed": 0,
       "refused_locally": 0,
       "throttled_by_provider": 0
+    },
+    "hy3": {
+      "rate_per_min": 116.4,
+      "state": "closed",
+      "consecutive_failures": 0,
+      "allowed": 87,
+      "refused_locally": 0,
+      "throttled_by_provider": 0
     }
   },
-  "journal_head": "296e92d09e9df5affc825491c85723255b11ad5e01ab9a074239a4f9ea682c4c"
+  "journal_head": "34d88db7cf07adfa32aa728e3f0e6b9ef5f176478652cf7f308d3d0b63315e6b"
 }
