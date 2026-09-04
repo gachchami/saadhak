@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-04T14:43:45+00:00",
+  "as_of": "2026-09-04T14:49:21+00:00",
   "market_open": true,
   "account": {
     "id": "8e02ddcf-e8fd-4b5f-9d67-9c619b0334c9",
@@ -82,5 +82,5 @@
       "throttled_by_provider": 0
     }
   },
-  "journal_head": "34d88db7cf07adfa32aa728e3f0e6b9ef5f176478652cf7f308d3d0b63315e6b"
+  "journal_head": "f890ce0fe013248a19835e92f3e7880835a1f92378b56abcfc6dfd2f4ccf9dac"
 }
