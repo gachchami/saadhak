@@ -13,11 +13,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import streamlit as st  # noqa: E402
 
 import data as D  # noqa: E402
-import graphics as G  # noqa: E402
 from components import (  # noqa: E402
-    CAL_LEAD, HERO_CAPTION, MODEL_LEAD, RECORD_LEAD, STOPS_LEAD,
-    cal_verdict, capability_panel, decision_log, footer, legend, md, outcome_strip,
-    plate, readouts, record_panel, roster, stop_ledger, verdict, worksheet,
+    CAL_LEAD, MODEL_LEAD, RECORD_LEAD, STOPS_LEAD,
+    bar, capability_section, decision_log, foot, hero, loop_card, md,
+    outcome_card, record_section, roster, section, stats, stop_ledger,
+    tally_card, wall_card, worksheet,
 )
 from style import CSS  # noqa: E402
 
@@ -29,40 +29,32 @@ md(CSS)   # a blank line inside <style> would end the raw-HTML block
 
 S = D.snapshot()
 
+md(bar(S))
+md('<div class="grid37" style="align-items:end">', hero(S), tally_card(S), '</div>')
+md(stats(S))
 
-def rule(label: str) -> str:
-    return f'<div class="lead-rule"><span class="eyebrow">{label}</span><i></i></div>'
+md(section("Every candidate, every check",
+           "One line per trade, running until something stops it"))
+md(wall_card(S))
 
-
-md(plate(S))
-md(verdict(S))
-
-md('<div class="sd-wrap">', rule("Every candidate, every check"),
-   '<div class="only-wide">', G.wall_wide(S), '</div>',
-   '<div class="only-narrow">', G.wall_narrow(S), '</div>',
-   legend(),
-   '<p class="prose" style="margin-top:18px">', HERO_CAPTION, '</p>',
-   '</div>')
-
-md(readouts(S))
-
-md(rule("What stopped them"), '<p class="lead">', STOPS_LEAD, '</p>',
-   stop_ledger(S), roster(S),
-   '<p class="note" style="margin-top:20px;max-width:78ch">',
+md(section("What stopped them", "Five checks have ever had to refuse anything", STOPS_LEAD))
+md(stop_ledger(S), roster(S))
+md(f'<p class="note" style="margin-top:22px;max-width:80ch">'
    f'Counted by the check that stopped each trade. Counting every failed check instead gives '
-   f'{S["every_failure"]} across {S["refused"]} refusals, because one candidate can fail '
-   f'several. Two of these checks were rewritten while the agent was running, and each entry '
-   f'names the test that actually ran.', '</p>')
+   f'{S["every_failure"]} across {S["refused"]} refusals, because one candidate can fail several. '
+   f'Two of these checks were rewritten while the agent was running, and each entry names the '
+   f'test that actually ran.</p>')
 
-md(rule("How it earns the size it may risk"), '<p class="lead">', CAL_LEAD, '</p>')
-md('<div class="sd-wrap">', G.loop_wide(S), '</div>')
-md('<div class="duo" style="margin-top:34px"><div>', worksheet(S), '</div>',
-   '<div><p class="prose">', cal_verdict(S), '</p>', outcome_strip(S), '</div></div>')
+md(section("How it earns its size", "Its own accuracy decides what it may risk", CAL_LEAD))
+md(loop_card(S))
+md('<div class="grid2" style="margin-top:20px">', worksheet(S), outcome_card(S), '</div>')
 
-md(rule("A second opinion that cannot trade"), '<p class="lead">', MODEL_LEAD, '</p>',
-   capability_panel(S))
+md(section("A second opinion that cannot trade",
+           "The model may object, but it has no way to place an order", MODEL_LEAD))
+md(capability_section(S))
 
-md(rule("The record"), '<p class="lead">', RECORD_LEAD, '</p>', decision_log(S))
-md(record_panel(S))
+md(section("The record", "Every decision, including the ones it declined", RECORD_LEAD))
+md(decision_log(S))
+md(record_section(S))
 
-md(footer(S))
+md(foot(S))

@@ -19,6 +19,14 @@ That is deliberately conservative: it counts any in-the-money finish as a loss,
 while in practice the stop often exits for less than a full loss and some
 touched structures recover. Two mechanical floors sit alongside it, because an
 edge that is thinner than the tick size or the spread is not an edge.
+
+The expected value is net of friction. Crossing the bid-ask costs the same in
+cents whether a structure is one point wide or ten, so it is a fixed toll on a
+credit that grows with width -- on a narrow spread it can be half the edge. A
+gross expected value is scale-free and therefore ranks the narrowest structure
+first every time, which is how a search over widths ends up choosing spreads too
+small to fill or to manage. Charging the round trip inside the number removes
+that bias without anyone having to express a preference about width.
 """
 from __future__ import annotations
 
@@ -57,6 +65,16 @@ def win_probability(structure: Structure) -> float | None:
     return p
 
 
+def natural_credit(structure: Structure) -> float:
+    """The credit available immediately: sell every short leg at the bid, pay the
+    ask on every long one. This is the price at which the order is marketable."""
+    total = 0.0
+    for leg in structure.legs:
+        px = leg.contract.bid if leg.side == "sell" else -leg.contract.ask
+        total += px * leg.ratio_qty
+    return round(total, 2)
+
+
 def spread_cost(structure: Structure) -> float:
     """Half the bid-ask on every leg: what crossing the spread costs to get in."""
     return sum(l.contract.spread / 2.0 * l.ratio_qty for l in structure.legs)
@@ -71,7 +89,8 @@ def evaluate(structure: Structure) -> Expectancy:
 
     p = win_probability(structure)
     sc = spread_cost(structure)
-    ev = (p * win_amt - (1 - p) * loss_amt) if p is not None else 0.0
+    friction = sc * 2.0   # cross the spread to get in, and again to get out
+    ev = (p * win_amt - (1 - p) * loss_amt - friction) if p is not None else 0.0
 
     if p is None:
         return Expectancy(0, breakeven, credit, win_amt, loss_amt, 0, sc, False,
@@ -89,6 +108,40 @@ def evaluate(structure: Structure) -> Expectancy:
                           f"P(win) {p:.0%} below breakeven {breakeven:.0%} "
                           f"+ {s.win_prob_margin:.0%} margin")
 
+    # Alpaca paper fills only what is marketable. If the price that would fill is
+    # already below the least credit worth taking, there is no price at which this
+    # trade both fills and is worth filling -- and posting it produces a dead
+    # order that occupies the book's caps until it is swept.
+    nat = natural_credit(structure)
+    floor = max(s.min_credit_abs, sc * s.spread_cover_multiple)
+    if nat < floor:
+        return Expectancy(p, breakeven, credit, win_amt, loss_amt, ev, sc, False,
+                          f"unfillable: marketable credit ${nat:.2f} is below the "
+                          f"${floor:.2f} reservation, so no fill clears the floor")
+
+    if ev <= 0:
+        return Expectancy(p, breakeven, credit, win_amt, loss_amt, ev, sc, False,
+                          f"EV ${ev:+.2f}/contract after ${friction:.2f} round-trip "
+                          f"friction: the spread eats the edge")
+
     return Expectancy(p, breakeven, credit, win_amt, loss_amt, ev, sc, True,
                       f"P(win) {p:.0%} beats breakeven {breakeven:.0%} by "
-                      f"{p - breakeven:.0%}; EV ${ev:+.2f}/contract")
+                      f"{p - breakeven:.0%}; EV ${ev:+.2f}/contract net of "
+                      f"${friction:.2f} friction")
+
+
+def reservation_credit(structure: Structure) -> float:
+    """The least credit at which this structure still clears the expectancy test.
+
+    Of the three acceptance conditions, only two move with the price. The
+    win-probability margin does not: take-profit and stop both scale with the
+    credit, so the breakeven win rate is the same at any price. That leaves the
+    tick floor and the spread-cover rule, and the binding one of the two is the
+    reservation price.
+
+    An entry limit may be walked toward the natural price to get filled, but
+    never past this number. Below it the fill is bought by giving away the
+    reason the trade was taken.
+    """
+    s = settings()
+    return round(max(s.min_credit_abs, spread_cost(structure) * s.spread_cover_multiple), 2)

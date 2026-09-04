@@ -48,6 +48,13 @@ class Settings(BaseSettings):
     expiry_danger_pct: float = 0.004  # buffer around a short strike at the time stop
     earnings_guard: bool = True       # refuse Book A trades over an earnings event
 
+    # --- Execution ---
+    # Alpaca paper fills only orders that are marketable now; a limit left at the
+    # mid never fills. The walk spends the slack between the mid and the
+    # reservation price to become marketable, and cancels if that is not enough.
+    walk_steps: int = 3
+    walk_wait_s: float = 15.0
+
     # --- Liquidity ---
     max_spread_pct: float = 0.15
     max_spread_abs: float = 0.10

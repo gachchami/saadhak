@@ -59,3 +59,45 @@ def test_credit_that_does_not_cover_the_spread_is_refused(condor):
 
 def test_win_probability_multiplies_both_short_legs(condor):
     assert win_probability(condor) == pytest.approx(0.81, abs=1e-6)
+
+
+def test_reservation_credit_is_the_binding_floor(condor):
+    """The walk may spend the slack between the mid and this number, no more."""
+    from saadhak.config import settings
+    from saadhak.engine.expectancy import reservation_credit, spread_cost
+    s = settings()
+    r = reservation_credit(condor)
+    assert r == round(max(s.min_credit_abs, spread_cost(condor) * s.spread_cover_multiple), 2)
+    assert r <= condor.net_credit, "a structure that passed the gate must have slack"
+
+
+def test_at_the_reservation_credit_the_structure_still_clears(condor):
+    """One tick below it must fail, or the floor is in the wrong place."""
+    from saadhak.engine.expectancy import evaluate, reservation_credit
+    r = reservation_credit(condor)
+    assert evaluate(condor).ok
+    assert r >= 0.10
+
+
+def test_a_structure_that_cannot_fill_is_refused(condor):
+    """Five orders in one session were posted at a mid that no fill could reach.
+    A trade whose marketable price is under its own floor does not exist."""
+    from dataclasses import replace
+    from saadhak.engine.expectancy import evaluate, natural_credit, reservation_credit
+    assert evaluate(condor).ok
+    # Widen every quote so the bid side collapses below the reservation credit.
+    wide = replace(condor, legs=[
+        replace(l, contract=replace(l.contract, bid=max(l.contract.bid - 0.40, 0.01),
+                                    ask=l.contract.ask + 0.40))
+        for l in condor.legs])
+    e = evaluate(wide)
+    assert not e.ok
+    assert "unfillable" in e.reason or "spread cost" in e.reason, e.reason
+
+
+def test_natural_credit_is_the_marketable_price(condor):
+    from saadhak.engine.expectancy import natural_credit
+    expected = sum((l.contract.bid if l.side == "sell" else -l.contract.ask) * l.ratio_qty
+                   for l in condor.legs)
+    assert natural_credit(condor) == round(expected, 2)
+    assert natural_credit(condor) <= condor.net_credit, "natural must be worse than the mid"

@@ -5,11 +5,13 @@ survive being copied out of the page into a slide or a screenshot.
 """
 from __future__ import annotations
 
-GROUND, PANEL, RULE = "#0E1417", "#151E21", "#223034"
-CHALK, SLATE, DIM = "#E9E6DD", "#8C9A9D", "#6E8085"
-TRACK, VERDIGRIS, OXIDE = "#455E64", "#74B8A8", "#D2685A"
+# Drawn on white, in the page's palette. CHALK is the refusal mass, which on a
+# light ground is the darkest ink rather than the brightest.
+GROUND, PANEL, RULE = "#FFFFFF", "#F6F9FC", "#E3E8EE"
+CHALK, SLATE, DIM = "#0A2540", "#697386", "#8792A2"
+TRACK, VERDIGRIS, OXIDE = "#C9D3DF", "#0E7C66", "#CD3D64"
 
-SANS = "'IBM Plex Sans Condensed',Helvetica,Arial,sans-serif"
+SANS = "'Instrument Sans',Helvetica,Arial,sans-serif"
 MONO = "'IBM Plex Mono',ui-monospace,Menlo,monospace"
 
 # The engine runs every check on every candidate rather than stopping at the
@@ -103,7 +105,7 @@ def wall_wide(S: dict) -> str:
         if r["stopped"]:
             x_stop = POST_X[SLOT.get((r["key"] or (99,))[0], 18)]
             out.append(f'<rect x="158" y="{y:.1f}" width="{x_stop - 158}" '
-                       f'height="{bar_h:.1f}" fill="{CHALK}"/>')
+                       f'height="{bar_h:.1f}" rx="1.5" fill="{CHALK}"/>')
         else:
             out.append(f'<line x1="158" y1="{y + bar_h / 2:.1f}" x2="1078" '
                        f'y2="{y + bar_h / 2:.1f}" stroke="{TRACK}" stroke-width="1.5" '
@@ -162,7 +164,7 @@ def wall_narrow(S: dict) -> str:
         if r["stopped"]:
             x_stop = px[SLOT.get((r["key"] or (99,))[0], 18)]
             out.append(f'<rect x="14" y="{y:.1f}" width="{x_stop - 14:.1f}" '
-                       f'height="{bar_h:.1f}" fill="{CHALK}"/>')
+                       f'height="{bar_h:.1f}" rx="1.5" fill="{CHALK}"/>')
         else:
             out.append(f'<line x1="14" y1="{y + bar_h / 2:.1f}" x2="340" y2="{y + bar_h / 2:.1f}" '
                        f'stroke="{TRACK}" stroke-width="1" vector-effect="non-scaling-stroke"/>')
@@ -207,7 +209,7 @@ def loop_wide(S: dict) -> str:
            'and the score sets the money allowed on the next trade.</desc>']
     for i, (eyebrow, value, note) in enumerate(stations):
         x = xs[i]
-        out.append(f'<rect x="{x}" y="28" width="250" height="92" fill="{PANEL}" '
+        out.append(f'<rect x="{x}" y="28" width="250" height="92" rx="8" fill="{PANEL}" '
                    f'stroke="{RULE}" stroke-width="1"/>')
         out.append(_t(x + 16, 50, eyebrow, fill=DIM, size=10, ls=1.5))
         out.append(_t(x + 16, 86, value, fill=CHALK, size=26, family=MONO, weight="500"))
@@ -233,20 +235,20 @@ def capability_svg(S: dict, *, label_size=13) -> str:
            f'<title>The model cannot place an order</title>'
            f'<desc>The tool server the model talks to offers read-only tools. '
            f'There is no order-placing tool for it to call.</desc>']
-    out.append(f'<rect x="14" y="76" width="150" height="48" fill="{PANEL}" stroke="{RULE}"/>')
+    out.append(f'<rect x="14" y="76" width="150" height="48" rx="6" fill="{PANEL}" stroke="{RULE}"/>')
     out.append(_t(89, 105, "THE MODEL", fill=CHALK, size=label_size, anchor="middle", ls=1.2))
     out.append(f'<line x1="164" y1="100" x2="206" y2="100" stroke="{SLATE}"/>' + _head(214, 100))
-    out.append(f'<rect x="214" y="76" width="150" height="48" fill="{PANEL}" stroke="{RULE}"/>')
+    out.append(f'<rect x="214" y="76" width="150" height="48" rx="6" fill="{PANEL}" stroke="{RULE}"/>')
     out.append(_t(289, 105, "THE TOOL SERVER", fill=CHALK, size=label_size, anchor="middle", ls=1.2))
     for i, tool in enumerate(tools or ["No tools called"]):
         y = 30 + 54 * i
-        out.append(f'<rect x="430" y="{y}" width="116" height="34" fill="{PANEL}" stroke="{RULE}"/>')
+        out.append(f'<rect x="430" y="{y}" width="116" height="34" rx="6" fill="{PANEL}" stroke="{RULE}"/>')
         out.append(_t(488, y + 22, tool, fill=CHALK, size=label_size - 1, weight="500",
                       anchor="middle"))
         out.append(f'<polyline points="364,100 400,{y + 17} 424,{y + 17}" fill="none" '
                    f'stroke="{SLATE}"/>' + _head(424, y + 17))
     gy = 30 + 54 * k + 18
-    out.append(f'<rect x="430" y="{gy}" width="116" height="34" fill="none" stroke="{TRACK}" '
+    out.append(f'<rect x="430" y="{gy}" width="116" height="34" rx="6" fill="none" stroke="{TRACK}" '
                f'stroke-dasharray="3 3"/>')
     out.append(_t(488, gy + 22, "Place an order", fill=DIM, size=label_size - 1,
                   weight="500", anchor="middle"))

@@ -5,6 +5,8 @@ import time
 from dataclasses import dataclass
 
 from saadhak.broker.client import AlpacaError, trading
+from saadhak.config import settings
+from saadhak.engine.expectancy import reservation_credit
 from saadhak.engine.gates import client_order_id
 from saadhak.engine.structures import Leg, Structure
 
@@ -78,13 +80,28 @@ def open_orders() -> list[dict]:
     return trading("/orders", params={"status": "open", "limit": 100}) or []
 
 
-def walk_limit(structure: Structure, result: OrderResult, *, steps: int = 3,
-               wait_s: float = 20.0, cycle_id: str = "") -> OrderResult:
-    """If unfilled, step one third toward the natural price, at most `steps` times, then cancel.
+def walk_limit(structure: Structure, result: OrderResult, *, steps: int | None = None,
+               wait_s: float | None = None, cycle_id: str = "",
+               on_step=None) -> OrderResult:
+    """Step an unfilled entry toward the natural price, then cancel what will not fill.
 
-    Credit structures walk *down* (accept less credit); debits walk *up*.
+    Alpaca's paper environment only fills an order that is marketable against the
+    NBBO right now; it never simulates a resting order being taken. An entry
+    posted at the mid and left alone therefore cannot fill, however long it waits.
+
+    Credit structures walk *down* (accept less credit); debits walk *up*. In
+    Alpaca's signed convention both directions are the same arithmetic: worse for
+    us is always more positive, so one clamp bounds both. That bound is the
+    structure's reservation price -- the walk buys a fill with the slack the
+    expectancy test allows and stops at the point where the trade stops being
+    worth taking.
     """
     if not result.submitted or not result.order_id:
+        return result
+    s = settings()
+    steps = s.walk_steps if steps is None else steps
+    wait_s = s.walk_wait_s if wait_s is None else wait_s
+    if steps < 1:
         return result
     # Both in signed terms: negative is credit received.
     natural = -sum(
@@ -92,17 +109,26 @@ def walk_limit(structure: Structure, result: OrderResult, *, steps: int = 3,
         for l in structure.legs
     )
     start = signed_limit(structure, structure.net_credit)
+    # Never walk past the price at which the trade stops clearing its own
+    # expectancy test. Signed, "worse for us" is more positive either way.
+    bound = signed_limit(structure, reservation_credit(structure))
     order_id = result.order_id
+    sent = start
     for i in range(1, steps + 1):
         time.sleep(wait_s)
         o = get_order(order_id)
         if o.get("status") in ("filled", "canceled", "expired", "rejected"):
             return OrderResult(True, False, result.body, o)
-        target = start + (natural - start) * (i / steps)
+        target = round(min(start + (natural - start) * (i / steps), bound), 2)
+        if target <= sent:      # no slack left, or already there
+            break
         try:
             o = trading(f"/orders/{order_id}", method="PATCH",
                         json={"limit_price": f"{target:.2f}"})
             order_id = o.get("id", order_id)
+            sent = target
+            if on_step:
+                on_step(order_id, target, i)
         except AlpacaError:
             break
     try:

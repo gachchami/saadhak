@@ -85,8 +85,8 @@ def sweep_stale_orders(*, max_age_min: float = 5.0, dry_run: bool = False,
     An unfilled limit order is not harmless. It can fill hours later, at a price
     the decision was not made at, into a position nothing is watching yet, and it
     is invisible to the portfolio caps, which count positions rather than intent.
-    One sat open for ninety minutes today because the limit walk was written and
-    never called.
+    This is the backstop behind the limit walk in the entry path, not the primary
+    exit for an unfilled order: anything reaching it escaped the walk.
     """
     killed = []
     now = datetime.now(UTC)
@@ -103,7 +103,7 @@ def sweep_stale_orders(*, max_age_min: float = 5.0, dry_run: bool = False,
                   f"{o.get('limit_price')} — cancelling", flush=True)
         journal.append("order_cancelled", {
             "order_id": o["id"], "age_min": round(age, 1),
-            "limit_price": o.get("limit_price"), "reason": "unfilled at the mid",
+            "limit_price": o.get("limit_price"), "reason": "unfilled past max age (walk backstop)",
             "dry_run": dry_run})
         if not dry_run:
             try:

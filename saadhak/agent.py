@@ -14,7 +14,8 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from saadhak.broker import account as acct
-from saadhak.broker.orders import submit
+from saadhak.broker.orders import submit, walk_limit
+from saadhak.engine.expectancy import reservation_credit
 from saadhak.config import settings
 from saadhak.engine.decide import decide
 from saadhak.engine.screen import tradeable_symbols
@@ -88,6 +89,25 @@ def try_entry(symbol: str, window: int, state: AgentState, *, dry_run: bool) -> 
     _log(f"  {res.status.upper()} {d.structure.describe()}"
          + (f" order {res.order_id}" if res.order_id else "")
          + (f" ERROR {res.error}" if res.error else ""))
+    if not res.submitted or dry_run:
+        return
+
+    # A limit resting at the mid cannot fill in Alpaca paper. Spend the slack the
+    # expectancy test allows to become marketable, and cancel what still will not.
+    floor = reservation_credit(d.structure)
+
+    def _step(order_id: str, price: float, n: int) -> None:
+        journal.append("order_walked", {
+            "cycle_id": d.cycle_id, "order_id": order_id, "step": n,
+            "limit_price": round(price, 2), "reservation_credit": floor})
+        _log(f"    walk {n}: limit -> {price:+.2f} (floor {-floor:+.2f})")
+
+    walked = walk_limit(d.structure, res, cycle_id=d.cycle_id, on_step=_step)
+    journal.append("order_walk_result", {
+        "cycle_id": d.cycle_id, "order_id": walked.order_id,
+        "status": walked.status, "reservation_credit": floor,
+        "mid_credit": d.structure.net_credit, "error": walked.error})
+    _log(f"  {walked.status.upper()} after walk {d.structure.describe()}")
 
 
 def run(*, dry_run: bool = False, interval: int = 60,

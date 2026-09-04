@@ -165,6 +165,18 @@ def _fmt_structure(s: str) -> str:
     return f"{sym} · {kind} · {strikes} · {n} {lot_word} · {credit_txt}"
 
 
+_MON = {"01": "Jan", "02": "Feb", "03": "Mar", "04": "Apr", "05": "May", "06": "Jun",
+        "07": "Jul", "08": "Aug", "09": "Sep", "10": "Oct", "11": "Nov", "12": "Dec"}
+
+
+def _when(ts: str) -> str:
+    """Day and time. The log spans several days, so a bare clock reads as out of order."""
+    ts = str(ts or "")
+    if len(ts) < 16:
+        return ts
+    return f"{ts[8:10].lstrip('0')} {_MON.get(ts[5:7], '')} {ts[11:16]}"
+
+
 def _first_failure(gates: list[dict]) -> dict | None:
     bad = [g for g in gates if isinstance(g, dict) and not g.get("ok", True)]
     return min(bad, key=lambda g: g.get("n", 99)) if bad else None
@@ -181,11 +193,13 @@ def _age(iso: str | None) -> tuple[str, float]:
         then = then.replace(tzinfo=UTC)
     hours = (datetime.now(UTC) - then).total_seconds() / 3600
     if hours < 1:
-        return f"{max(int(hours * 60), 1)} minutes ago", hours
+        mins = max(int(hours * 60), 1)
+        return f"{mins} minute{'s' if mins != 1 else ''} ago", hours
     if hours < 48:
         n = int(round(hours))
         return f"{n} hour{'s' if n != 1 else ''} ago", hours
-    return f"{int(hours / 24)} days ago", hours
+    days = int(hours / 24)
+    return f"{days} day{'s' if days != 1 else ''} ago", hours
 
 
 @st.cache_data(ttl=60)
@@ -211,7 +225,7 @@ def snapshot() -> dict:
         exp = d.get("expectancy") if isinstance(d.get("expectancy"), dict) else {}
         rows.append({
             "ts": r.get("ts", ""),
-            "time": str(r.get("ts", ""))[11:16],
+            "time": _when(r.get("ts", "")),
             "structure": _fmt_structure(d.get("structure")),
             "stopped": fail is not None,
             "key": key,

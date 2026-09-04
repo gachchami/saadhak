@@ -1,6 +1,6 @@
 {
-  "as_of": "2026-09-04T19:04:41+00:00",
-  "market_open": true,
+  "as_of": "2026-09-04T22:21:14+00:00",
+  "market_open": false,
   "account": {
     "id": "8e02ddcf-e8fd-4b5f-9d67-9c619b0334c9",
     "number": "PA36JVGLDYR4",
@@ -8,7 +8,6 @@
     "cash": 99212.36,
     "daily_pl": 0.0,
     "daily_pl_pct": 0.0,
-    "start_equity": 100000.0,
     "since_start_pct": -0.007876400000000006
   },
   "calibration": {
@@ -26,13 +25,6 @@
     "accepted": 15,
     "refused": 33,
     "refusal_reasons": {
-      "01 market_hours": 2,
-      "08 credit_floor": 9,
-      "07 liquidity": 1,
-      "09 short_delta": 2,
-      "02 whitelist": 19
-    },
-    "refusal_reasons_all": {
       "01 market_hours": 2,
       "08 credit_floor": 11,
       "09 short_delta": 5,
@@ -405,7 +397,23 @@
     {
       "t": "2026-09-04T19:00:00+00:00",
       "e": 99212.36
+    },
+    {
+      "t": "2026-09-04T19:15:00+00:00",
+      "e": 99212.36
+    },
+    {
+      "t": "2026-09-04T19:30:00+00:00",
+      "e": 99212.36
+    },
+    {
+      "t": "2026-09-04T19:45:00+00:00",
+      "e": 99212.36
+    },
+    {
+      "t": "2026-09-04T20:00:00+00:00",
+      "e": 99212.36
     }
   ],
-  "journal_head": "e5007a982e69ba7d2b1d83338fe38009eab25c70cd0f5b7b5926d59ac471c964"
+  "journal_head": "8d7a1b8b4489a4060176df93a7dd82c041e1efb03fa99044826a636b78436cea"
 }
