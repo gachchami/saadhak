@@ -1,0 +1,78 @@
+{
+  "as_of": "2026-09-04T14:40:59+00:00",
+  "market_open": true,
+  "account": {
+    "id": "8e02ddcf-e8fd-4b5f-9d67-9c619b0334c9",
+    "number": "PA36JVGLDYR4",
+    "equity": 99212.36,
+    "cash": 99212.36,
+    "daily_pl": 0.0,
+    "daily_pl_pct": 0.0,
+    "since_start_pct": -0.007876400000000006
+  },
+  "calibration": {
+    "brier": 0.2484,
+    "n": 40,
+    "mean_p": 0.4845,
+    "hit_rate": 0.575,
+    "verdict": "Brier 0.248 over 40; says 48%, right 57% of the time -> underconfident",
+    "multiplier": 0.7032,
+    "risk_per_structure": 1046.49
+  },
+  "open_structures": [],
+  "decisions": {
+    "total": 6,
+    "accepted": 1,
+    "refused": 5,
+    "refusal_reasons": {
+      "02 whitelist": 5,
+      "07 liquidity": 1
+    }
+  },
+  "practitioner": {
+    "consulted": 1,
+    "vetoes": 0,
+    "last": {
+      "cycle_id": "20260904T140757-37415b",
+      "structure": "QQQ 2026-09-04 iron_condor 713/714/727/728 x11 @ +0.11",
+      "consulted": true,
+      "verdict": "agree",
+      "p_success": 0.84,
+      "engine_win_prob": 0.8694,
+      "thesis": "Short strikes 714/727 sit >6 points from spot 720.89 with same-day expiry and no evidenced adverse event, giving high chance of profit.",
+      "veto_reason": "",
+      "model": "moonshotai/Kimi-K2.6",
+      "mcp_tools_called": [
+        "get_stock_snapshot",
+        "get_news"
+      ],
+      "error": null,
+      "usage": {
+        "prompt": 1051,
+        "completion": 689,
+        "reasoning": 626
+      },
+      "latency_ms": 7274
+    }
+  },
+  "reconciliation": {
+    "ok": true,
+    "checked": true,
+    "diffs": [],
+    "source": "alpaca-cli",
+    "cli_positions": 0,
+    "rest_positions": 0,
+    "cli_open_orders": 0
+  },
+  "limiters": {
+    "default": {
+      "rate_per_min": 12.0,
+      "state": "closed",
+      "consecutive_failures": 0,
+      "allowed": 0,
+      "refused_locally": 0,
+      "throttled_by_provider": 0
+    }
+  },
+  "journal_head": "296e92d09e9df5affc825491c85723255b11ad5e01ab9a074239a4f9ea682c4c"
+}

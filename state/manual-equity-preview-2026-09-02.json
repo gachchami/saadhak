@@ -1,0 +1,62 @@
+{
+  "schema_version": "manual-equity-preview-v1",
+  "attempt_id": "manual-spy-preview-20260902T133757Z",
+  "attempt_consumed": true,
+  "automatic_retry": false,
+  "captured_at": "2026-09-02T13:39:09.535841Z",
+  "status": "WAIT",
+  "reason_codes": [
+    "CATALYST_HALT_GATE_NOT_ESTABLISHED"
+  ],
+  "reason": "Fresh broker and IEX evidence passed, but this checkout has no approved source-complete catalyst/halt gate. Current SPY news includes macro/Fed and geopolitical items, so the system fails closed.",
+  "account": {
+    "environment": "PAPER",
+    "scope_sha256": "d1bc73b89ab4b2f0118eaa6d884ddee8e20b7ff66ca6f6b8392a2de4a2adef68",
+    "status": "ACTIVE",
+    "account_blocked": false,
+    "trading_blocked": false,
+    "trade_suspended_by_user": false,
+    "equity_usd": "100000.00",
+    "cash_usd": "100000.00",
+    "buying_power_usd": "400000.00",
+    "positions": 0,
+    "open_orders": 0
+  },
+  "session": {
+    "market_open": true,
+    "broker_clock_at": "2026-09-02T09:38:46.774327022-04:00",
+    "regular_open_et": "09:30",
+    "regular_close_et": "16:00"
+  },
+  "instrument": {
+    "symbol": "SPY",
+    "asset_class": "us_equity",
+    "status": "active",
+    "tradable": true
+  },
+  "market_data": {
+    "feed": "iex",
+    "scope": "single exchange, not SIP/NBBO",
+    "bid": "762.20",
+    "bid_size": 80,
+    "ask": "762.23",
+    "ask_size": 80,
+    "quote_at": "2026-09-02T13:38:50.633946234Z",
+    "last_trade": "762.28",
+    "last_trade_at": "2026-09-02T13:38:48.337742816Z"
+  },
+  "catalyst_evidence": {
+    "alpaca_news_items": 13,
+    "latest_news_at": "2026-09-02T13:26:57Z",
+    "qualified_complete_horizon": false,
+    "limitation": "Alpaca SPY news was read, but no approved complete calendar/news/halt policy exists in this checkout. News cannot establish absence of future events."
+  },
+  "proposal": null,
+  "order_payload": null,
+  "preview_valid_until": null,
+  "confirmation_required": false,
+  "order_authority": false,
+  "broker_mutations": 0,
+  "model_calls": 0,
+  "disclosure": "Informational research in Alpaca paper trading only. Paper fills and liquidity differ from live markets. A long share can lose approximately its full purchase notional plus fees and expenses."
+}

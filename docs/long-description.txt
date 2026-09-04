@@ -1,0 +1,9 @@
+Most AI trading agents are confident. Saadhak is calibrated: it decides how much to risk based on how accurate it has actually been.
+
+It trades defined-risk options on liquid index products, one day to expiry. Never naked, never a market order; the maximum loss is known before the order goes in.
+
+Niyama, deterministic code, searches 70 structures per name and is the only thing that can create an order. Saadhaka, a Featherless model over Alpaca's MCP server, loads research tools only, so none of the 33 it reaches can mutate anything: it may veto a trade, never start one. Saakshya scores every probability the model states and reconciles the broker through the Alpaca CLI.
+
+Nineteen gates stand between a candidate and an order, each explaining itself. The central one is derived: take-profit at half the credit against a 2x stop means breakeven needs a 2-in-3 win rate.
+
+Over 40 scored forecasts the model says 48% and is right 57%, earning 0.70x of full size.

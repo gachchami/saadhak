@@ -1,0 +1,36 @@
+# secrets
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# runtime
+state/*.tmp
+*.log
+STOP
+
+# os / editors
+.DS_Store
+.idea/
+.vscode/
+monitor.log
+
+# never commit voice or audio source material
+*.zip
+*.voicebox.zip
+docs/voice/*
+!docs/voice/README.md
+docs/voice-samples/
+
+# everything here is local-only: voice recordings, raw audio, scratch material
+private/

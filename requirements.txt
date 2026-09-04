@@ -1,0 +1,3 @@
+# Streamlit Community Cloud installs from this file.
+# The dashboard reads committed JSON only; it needs no Alpaca or model keys.
+streamlit>=1.36

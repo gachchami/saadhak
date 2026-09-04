@@ -1,0 +1,51 @@
+# Saadhak — video script
+
+4:32 total.
+
+## 0:00 — What it is
+
+Saadhak is an autonomous options trading agent on Alpaca. It finds its own trades, sizes them, places them, and closes them, with no one watching. What makes it different is that it decides how much to risk based on how accurate it has actually been. Most A.I. trading agents are confident. This one is calibrated.
+
+## 0:22 — What it trades
+
+Here is what it trades. Every position is a defined-risk options structure, usually an iron condor, which profits when the market stays inside a range. It sells that range one day before expiry, on index products liquid enough to get out of. It never sells anything naked, and it never sends a market order. The most it can lose on any position is known before the order goes in.
+
+## 0:49 — Three components
+
+Three components. Niyama, the discipline, is deterministic code. It discovers which underlyings even list options today, searches seventy structures on each one, ranks them by expected value per dollar at risk, and it is the only thing that can create an order. Saadhaka, the practitioner, is a language model researching through Alpaca's M.C.P. server. It can veto a trade; it cannot start one, because the tools to place an order are never loaded into its session. And Saakshya, the witness, scores every probability the model states, and reconciles the broker through the Alpaca command line tool.
+
+## 1:30 — The architecture
+
+Between a candidate and a real order sit nineteen checks. Every one of them explains itself, and every refusal is written to the journal with its reason. This is the whole application in one picture: data comes in on the left, nineteen gates in the middle, and one order out.
+
+## 1:49 — A real decision
+
+Here is a real decision, printed by the running agent. It picked an S.P.Y. condor, twelve contracts, sixteen cents of credit, a thousand dollars of defined risk. Then nineteen lines, each naming what it checked and what it found. Market open. Liquidity fine. Correlation clear. Expectancy eighty five percent against a breakeven of sixty seven. Accept.
+
+## 2:15 — Why that number matters
+
+That expectancy number is the heart of it. Saadhak takes profit at half of what it collected and cuts a loss at twice that, which means it has to win two times in three simply to break even. So the only question worth asking about a trade is whether it clears that bar, and the odds come from the options market itself, priced into the strikes.
+
+## 2:38 — The model objects
+
+The model's job is to object. On Thursday it refused a trade because Friday's employment report fell inside the holding window and could gap the index straight through the short strikes. That is a scheduled event the deterministic guard does not cover, because it only knows about earnings. The model caught what the code structurally could not.
+
+## 3:01 — What earns the size
+
+And this is what earns the size. Every review states a probability. The witness resolves it against what actually happened and scores it. Forty scored forecasts so far, saying forty eight percent and right fifty seven percent of the time. That score, not the model's confidence, sets the money: seventy percent of full size rather than a hundred.
+
+## 3:24 — When it stops
+
+It also knows when to stop. Two consecutive stop-outs on an underlying block new positions in it. S.P.Y. and Q.Q.Q. correlate at zero point nine one, so it counts them as one position rather than two. A three percent daily loss halts entries entirely, and exits keep running regardless.
+
+## 3:45 — Results, honestly
+
+The results, honestly. Four positions traded across two sessions. Three were stopped out when the index trended through the range, and the account finished down seven hundred and eighty eight dollars. Every one of those losses was capped at exactly one credit. No structure ever exceeded its stated maximum. Two sessions is not a track record, and this is a mechanism rather than a result.
+
+## 4:12 — All of it is public
+
+Everything is public. The repository, a live dashboard showing the account and every decision including the refusals, and a hash-chained journal that a judge can check against the Alpaca account id in the submission.
+
+## 4:26 — Close
+
+The model proposes. The discipline decides. And a witness keeps score.

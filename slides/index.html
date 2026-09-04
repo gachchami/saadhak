@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saadhak — Team Saadhaka</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/theme/black.min.css" id="theme">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Public+Sans:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{ --ink:#e8eaed; --muted:#9aa4b2; --gold:#d4a24c; --green:#5dbf90; --red:#e2798b; --bg:#0f1216; --rule:#2b3540; }
+  .reveal{ font-family:"Public Sans",system-ui,sans-serif; color:var(--ink); font-size:30px }
+  .reveal-viewport{ background:var(--bg) }
+  .reveal h1,.reveal h2,.reveal h3{ font-family:"Archivo",sans-serif; text-transform:none;
+    letter-spacing:-.01em; color:var(--ink); text-shadow:none; margin-bottom:.4em }
+  .reveal h1{ font-size:2.4em; font-weight:700 }
+  .reveal h2{ font-size:1.5em; font-weight:700 }
+  .reveal section{ text-align:left }
+  .reveal .lede{ color:var(--gold); font-style:italic; font-size:.82em; margin:-.2em 0 .9em }
+  .reveal ul{ display:block; margin-left:1.1em }
+  .reveal li{ margin:.36em 0; line-height:1.35 }
+  .reveal li.sub{ color:var(--muted); font-size:.82em; list-style:none; margin-left:-.6em }
+  .reveal .mono{ font-family:"IBM Plex Mono",monospace; font-size:.72em; color:var(--green) }
+  .reveal .dim{ color:var(--muted) }
+  .reveal .gold{ color:var(--gold) }
+  .reveal .red{ color:var(--red) }
+  .reveal .devanagari{ color:var(--gold); font-size:1.6em; line-height:1 }
+  .reveal .team{ font-family:"IBM Plex Mono",monospace; font-size:.6em; letter-spacing:.16em;
+    color:var(--muted); margin-top:1.4em }
+  .reveal table{ font-size:.62em; margin-top:.5em }
+  .reveal td,.reveal th{ border-bottom:1px solid var(--rule); padding:.36em .7em; text-align:left }
+  .reveal th{ font-family:"IBM Plex Mono",monospace; font-size:.85em; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.07em; font-weight:500 }
+  .reveal .kv{ font-family:"IBM Plex Mono",monospace; color:var(--gold) }
+  .reveal .foot{ position:absolute; bottom:-1.2em; left:0; font-family:"IBM Plex Mono",monospace;
+    font-size:.44em; color:#5c6672 }
+  .reveal .big{ font-size:1.25em; line-height:1.35 }
+  .reveal .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:1.1em; align-items:start }
+  .reveal .card{ border:1px solid var(--rule); border-radius:10px; padding:.7em .85em }
+  .reveal .card b{ color:var(--gold); font-family:"Archivo",sans-serif }
+  .reveal .progress{ color:var(--gold) }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<section>
+  <div class="devanagari">साधक</div>
+  <h1>Saadhak</h1>
+  <p class="lede">Most AI trading agents are confident. This one is calibrated.</p>
+  <p class="dim">An autonomous, defined-risk options agent on Alpaca that earns its
+     position size by proving it knows what it knows.</p>
+  <p class="team">TEAM SAADHAKA · lablaFeatherless × Alpaca · paper account PA36JVGLDYR4</p>
+</section>
+
+<section>
+  <h2>The problem</h2>
+  <p class="lede">Confidence is not accuracy, and nothing usually checks.</p>
+  <ul>
+    <li>A language model will tell you it is 90% sure.</li>
+    <li class="sub">Nothing scores that claim.</li>
+    <li class="sub">Nothing changes if it turns out to be wrong.</li>
+    <li class="sub">So the number is decoration, and the size behind it is a guess.</li>
+  </ul>
+  <p>Saadhak makes the claim falsifiable, scores it, and lets that score decide
+     how much money it may risk.</p>
+</section>
+
+<section>
+  <h2>What it trades</h2>
+  <p class="lede">Defined risk, every time.</p>
+  <ul>
+    <li>Iron condors and vertical spreads — they profit when the market stays inside a range.</li>
+    <li class="sub">one day to expiry, on liquid index products</li>
+    <li class="sub">never naked, never a market order</li>
+    <li class="sub">the maximum loss is known before the order goes in</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Three components</h2>
+  <div class="grid2">
+    <div class="card"><b>Niyama</b><br><span class="dim">the discipline</span>
+      <ul><li class="sub">deterministic code</li><li class="sub">searches 70 structures per name</li>
+      <li class="sub">the only thing that can create an order</li></ul></div>
+    <div class="card"><b>Saadhaka</b><br><span class="dim">the practitioner</span>
+      <ul><li class="sub">a language model on Featherless, over Alpaca's MCP server</li>
+      <li class="sub">33 research tools, none mutate</li>
+      <li class="sub">may veto, cannot start a trade</li></ul></div>
+  </div>
+  <div class="card" style="margin-top:.9em"><b>Saakshya</b> <span class="dim">the witness —
+    scores every probability the model states, reconciles the broker through the Alpaca CLI</span></div>
+</section>
+
+<section>
+  <h2>Nineteen gates between a candidate and an order</h2>
+  <p class="lede">Every one explains itself. Every refusal is journalled with its reason.</p>
+  <table>
+    <tr><th>group</th><th>gates</th></tr>
+    <tr><td class="kv">market state</td><td>hours · days to expiry · reconciled · kill switch</td></tr>
+    <tr><td class="kv">risk appetite</td><td>whitelist · max loss · portfolio caps · loss halts · sizeable</td></tr>
+    <tr><td class="kv">measurement</td><td>expectancy — TP at half credit vs a 2× stop = a 2-in-3 breakeven</td></tr>
+    <tr><td class="kv">quality</td><td>defined risk · liquidity · delta data · idempotent id · limit only · exits</td></tr>
+    <tr><td class="kv">circuits</td><td>earnings guard · regime breaker · correlation</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>What earns the size</h2>
+  <p class="lede">The mechanism the whole design rests on.</p>
+  <ul>
+    <li>Every review states a probability. The witness resolves it against what happened.</li>
+    <li class="sub">90% claimed and right half the time means the budget is cut</li>
+    <li class="sub">the engine sets the band, so a wider guess cannot buy a better score</li>
+  </ul>
+  <p class="mono" id="cal">Brier 0.248 over 40 · says 48%, right 57% → 0.70× of full size</p>
+</section>
+
+<section>
+  <h2>It knows when to stop</h2>
+  <ul>
+    <li>Two consecutive stop-outs block new entries in that name.</li>
+    <li>SPY and QQQ correlate at <span class="gold">0.91</span> — one position, not two.</li>
+    <li>A 3% daily loss halts entries; 6% flattens everything.</li>
+    <li class="sub">exits keep running through a halt — it never traps a position</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Every Alpaca surface, used for what it is good at</h2>
+  <table>
+    <tr><th>surface</th><th>for</th></tr>
+    <tr><td class="kv">Trading API</td><td>multi-leg limit orders, signed negative for credit</td></tr>
+    <tr><td class="kv">Market Data</td><td>chains, bars, quotes, news — greeks solved locally at 0 DTE</td></tr>
+    <tr><td class="kv">MCP server</td><td>the practitioner's research, trading toolset withheld</td></tr>
+    <tr><td class="kv">Featherless</td><td>open-weight models behind an OpenAI-compatible endpoint</td></tr>
+    <tr><td class="kv">CLI</td><td>reconciliation, kill switch, health checks, dry-runs</td></tr>
+    <tr><td class="kv">Contracts</td><td>queried without an underlying, to discover what lists options</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2 class="red">The results, honestly</h2>
+  <ul>
+    <li>Four positions across two sessions. Three stopped out when the index trended.</li>
+    <li class="sub">the account finished at $99,212 — down $788</li>
+    <li class="sub">every loss capped at exactly one credit</li>
+    <li class="sub">no structure ever exceeded its stated maximum</li>
+  </ul>
+  <p>Two sessions is not a track record. What this demonstrates is a mechanism.</p>
+</section>
+
+<section>
+  <h2>What it rests on</h2>
+  <p class="lede">Stated plainly, because it matters.</p>
+  <ul>
+    <li>Alpaca's free data tier: IEX quotes, indicative option quotes, no OPRA, 15-minute SIP delay.</li>
+    <li class="sub">every decision records its data provenance and marks degraded inputs</li>
+    <li class="sub">a stock moved 8% between our last visible print and the truth</li>
+    <li>Calibration rests on tens of forecasts, not thousands.</li>
+  </ul>
+</section>
+
+<section>
+  <h1>Thank you</h1>
+  <p class="lede">for taking the time to go through this agentic demo.</p>
+  <p class="big">The model proposes.<br>The discipline decides.<br><span class="gold">A witness keeps score.</span></p>
+  <p class="team">TEAM SAADHAKA</p>
+  <p class="mono">github.com/gachchami/saadhak · saadhak.streamlit.app</p>
+  <p class="foot">Alpaca paper account 8e02ddcf-e8fd-4b5f-9d67-9c619b0334c9</p>
+</section>
+
+</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/5.1.0/reveal.min.js"></script>
+<script>
+  Reveal.initialize({ hash:true, slideNumber:'c/t', transition:'fade', controls:true,
+                      progress:true, width:1280, height:720, margin:0.07 });
+</script>
+</body>
+</html>
