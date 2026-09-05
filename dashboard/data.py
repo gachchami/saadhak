@@ -20,6 +20,7 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parent.parent
 STATE = ROOT / "state" / "latest.json"
+LEDGER = ROOT / "state" / "ledger.json"
 JOURNAL = ROOT / "journal"
 GENESIS = "0" * 64
 START_EQUITY_FALLBACK = 100_000.0
@@ -104,6 +105,18 @@ def load_state() -> dict:
         return {}
     try:
         return json.loads(STATE.read_text())
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+@st.cache_data(ttl=60)
+def load_ledger() -> dict:
+    """Funding and fees. Its own file, because it changes rarely and the state
+    snapshot is rewritten every cycle by a process that may be running older code."""
+    if not LEDGER.exists():
+        return {}
+    try:
+        return json.loads(LEDGER.read_text())
     except (json.JSONDecodeError, OSError):
         return {}
 
@@ -246,6 +259,15 @@ def snapshot() -> dict:
                  and (r.get("data") or {}).get("task") == "fixed_band"]
     settled = [f for f in forecasts[-40:] if f.get("inside") is not None]
 
+    # What happened to the trades it actually took. The page used to stop at
+    # "sent to the broker" and never say where the money went.
+    closed = [{"ts": r.get("ts", ""), **(r.get("data") or {})}
+              for r in records if r.get("type") == "exit"]
+    submitted = sum(1 for r in records if r.get("type") == "order_submitted")
+    cancelled = sum(1 for r in records if r.get("type") == "order_cancelled")
+    realised = sum(c["pl"] for c in closed if isinstance(c.get("pl"), (int, float)))
+    ledger = load_ledger() or state.get("ledger") or {}
+
     tools: list[str] = []
     for t in theses:
         for name in (t.get("mcp_tools_called") or []):
@@ -280,6 +302,13 @@ def snapshot() -> dict:
         "last_veto": vetoed[-1] if vetoed else None,
         "last_review": theses[-1] if theses else None,
         "tools": tools,
+        "closed": closed, "realised": realised,
+        "funnel": {"considered": len(rows), "refused": refused, "cleared": accepted,
+                   "submitted": submitted, "unfilled": cancelled,
+                   "filled": max(submitted - cancelled, len(closed))},
+        "fees": _f(ledger.get("fees")) or 0.0,
+        "funding": _f(ledger.get("funding")),
+        "fee_charges": ledger.get("fee_charges") or 0,
         "chain": chain,
         "reconciliation": state.get("reconciliation") or {},
         "limiters": state.get("limiters") or {},

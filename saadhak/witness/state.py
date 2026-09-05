@@ -17,6 +17,7 @@ from saadhak.witness.calibration import current as calibration_now
 from saadhak.witness.positions import open_structures
 
 STATE = Path("state/latest.json")
+LEDGER = Path("state/ledger.json")
 
 
 def _equity_series(since_iso: str | None) -> list[dict]:
@@ -42,6 +43,35 @@ def _equity_series(since_iso: str | None) -> list[dict]:
                 continue
             points[stamp] = round(float(e), 2)
     return [{"t": t, "e": points[t]} for t in sorted(points)]
+
+
+def _ledger() -> dict:
+    """Funding and fees, so the dashboard can reconcile the account to the dollar.
+
+    Realised profit and the order funnel are already in the journal; only these
+    two come from the broker, and the dashboard holds no credentials.
+    """
+    try:
+        from saadhak.broker.client import trading
+        acts, token = [], None
+        while True:                      # the endpoint caps a page at 100
+            params = {"page_size": 100}
+            if token:
+                params["page_token"] = token
+            page = trading("/account/activities", params=params) or []
+            acts += [a for a in page if isinstance(a, dict)]
+            if len(page) < 100:
+                break
+            token = page[-1].get("id")
+    except Exception:
+        return {}
+    fees = sum(float(a["net_amount"]) for a in acts
+               if isinstance(a, dict) and a.get("activity_type") == "FEE")
+    funding = sum(float(a["net_amount"]) for a in acts
+                  if isinstance(a, dict) and a.get("activity_type") == "JNLC")
+    return {"fees": round(fees, 2), "funding": round(funding, 2),
+            "fee_charges": sum(1 for a in acts
+                               if isinstance(a, dict) and a.get("activity_type") == "FEE")}
 
 
 def build() -> dict:
@@ -121,4 +151,7 @@ def publish() -> dict:
     STATE.parent.mkdir(exist_ok=True)
     s = build()
     STATE.write_text(json.dumps(s, indent=2, default=str) + "\n")
+    ledger = _ledger()
+    if ledger:
+        LEDGER.write_text(json.dumps(ledger, indent=2, default=str) + "\n")
     return s

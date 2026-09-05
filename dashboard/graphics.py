@@ -278,7 +278,7 @@ def equity_spark(S: dict, w: int = 470, h: int = 116) -> str:
     span = (hi - lo) or 1.0
     pad = span * 0.18
     lo, hi = lo - pad, hi + pad
-    left, right, top, bot = 8, w - 96, 20, h - 30
+    left, right, top, bot = 8, w - 104, 22, h - 16
 
     def sx(i):
         return left + (right - left) * i / (len(vals) - 1)
@@ -304,6 +304,5 @@ def equity_spark(S: dict, w: int = 470, h: int = 116) -> str:
         f'<rect x="{right - 2.5:.1f}" y="{end_y - 2.5:.1f}" width="5" height="5" fill="{CHALK}"/>',
         _t(right + 12, end_y + 4, f"{vals[-1]:,.2f}", fill=CHALK, size=13, family=MONO,
            weight="500"),
-        _t(left, h - 8, "THE ACCOUNT SINCE IT STARTED", fill=DIM, size=10, ls=1.4),
         "</svg>",
     ])
